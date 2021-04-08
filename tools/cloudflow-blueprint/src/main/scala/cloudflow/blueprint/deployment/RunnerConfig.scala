@@ -33,8 +33,8 @@ case class RunnerConfig(data: String) extends ConfigMapData {
 }
 
 object RunnerConfig extends DefaultJsonProtocol with ConfigJsonFormat {
-  val PortMappingsPath = "cloudflow.runner.streamlet.context.port_mappings"
-  val AppConfigFilename = "application.conf"
+  val PortMappingsPath     = "cloudflow.runner.streamlet.context.port_mappings"
+  val AppConfigFilename    = "application.conf"
   implicit val topicFormat = jsonFormat(Topic.apply, "id", "cluster", "config")
 
   def apply(appId: String, appVersion: String, deployment: StreamletDeployment): RunnerConfig = {
@@ -45,14 +45,17 @@ object RunnerConfig extends DefaultJsonProtocol with ConfigJsonFormat {
   private def toRunnerJson(appId: String, appVersion: String, deployment: StreamletDeployment) =
     JsObject(
       "streamlet" -> JsObject(
-        "class_name" -> JsString(deployment.className),
-        "streamlet_ref" -> JsString(deployment.streamletName),
-        "context" -> JsObject(
-          "app_id" -> appId.toJson,
-          "app_version" -> appVersion.toJson,
-          "config" -> toJson(deployment.config),
-          "volume_mounts" -> toVolumeMountJson(deployment.volumeMounts),
-          "port_mappings" -> toPortMappingsJson(deployment.portMappings))))
+            "class_name"    -> JsString(deployment.className),
+            "streamlet_ref" -> JsString(deployment.streamletName),
+            "context" -> JsObject(
+                  "app_id"        -> appId.toJson,
+                  "app_version"   -> appVersion.toJson,
+                  "config"        -> toJson(deployment.config),
+                  "volume_mounts" -> toVolumeMountJson(deployment.volumeMounts),
+                  "port_mappings" -> toPortMappingsJson(deployment.portMappings)
+                )
+          )
+    )
 
   private def toJson(config: Config) = config.root().render(ConfigRenderOptions.concise()).parseJson
 
@@ -69,7 +72,8 @@ object RunnerConfig extends DefaultJsonProtocol with ConfigJsonFormat {
           case VolumeMountDescriptor(name, path, accessMode, _) =>
             JsObject("name" -> JsString(name), "path" -> JsString(path), "access_mode" -> JsString(accessMode))
         }
-        .toVector)
+        .toVector
+    )
 
 }
 
@@ -78,7 +82,7 @@ case class PrometheusConfig(data: String) extends ConfigMapData {
 }
 
 object PrometheusConfig extends DefaultJsonProtocol {
-  val PrometheusConfigFilename = "prometheus.yaml"
-  val PrometheusJmxExporterPort = 2050
+  val PrometheusConfigFilename               = "prometheus.yaml"
+  val PrometheusJmxExporterPort              = 2050
   def prometheusConfigPath(basePath: String) = basePath + File.separator + PrometheusConfig.PrometheusConfigFilename
 }
